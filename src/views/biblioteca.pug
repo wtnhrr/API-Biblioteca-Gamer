@@ -1,0 +1,37 @@
+extends layout
+
+block content
+  div.d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Minha Biblioteca
+    span.badge.bg-secondary #{user.biblioteca.length} Jogos Adquiridos
+
+  if user.biblioteca.length === 0
+    div.text-center.py-5.mt-4
+      i.bi.bi-emoji-frown.text-muted(style="font-size: 5rem")
+      h3.mt-4.text-muted Sua biblioteca está vazia.
+      p.text-muted Que tal explorar a loja e começar sua aventura?
+      a.btn.btn-primary.btn-lg.mt-3(href="/loja") 
+        i.bi.bi-shop.me-2
+        | Ir para a Loja
+  else
+    div.row.row-cols-1.row-cols-md-3.g-4
+      each game in user.biblioteca
+        div.col
+          div.card.h-100.shadow-sm.border-0
+            // Placeholder de imagem (Verde para indicar posse)
+            div.card-img-top.bg-success.text-white.d-flex.justify-content-center.align-items-center(style="height: 150px")
+               i.bi.bi-controller(style="font-size: 4rem; opacity: 0.8")
+            
+            div.card-body
+              h5.card-title.fw-bold= game.titulo
+              div.mb-2
+                span.badge.bg-dark.me-1= game.plataforma
+                span.badge.bg-secondary= game.genero
+              
+              p.card-text.text-muted.small Adicionado em: #{new Date().toLocaleDateString()}
+            
+            div.card-footer.bg-white.border-top-0.pb-3
+              div.d-grid
+                button.btn.btn-outline-success.btn-lg(onclick=`alert('Iniciando ${game.titulo}...')`)
+                  i.bi.bi-play-fill.me-2
+                  | Jogar Agora

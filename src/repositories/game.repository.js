@@ -1,38 +1,27 @@
-import db from '../database/db.js';
-import { v4 as uuidv4 } from 'uuid';
+import Game from '../models/game.model.js';
 
 class GameRepository {
-    static findAll() {
-        return db.data.games;
-    }
+  
+  static async findAll() {
+    return await Game.find();
+  }
 
-    static findById(id) {
-        return db.data.games.find(g => g.id === id);
-    }
+  static async findById(id) {
+    return await Game.findById(id);
+  }
 
-    static async create(gameData) {
-        const novoGame = {
-            id: uuidv4(),
-            ...gameData
-        };
-        db.data.games.push(novoGame);
-        await db.write();
-        return novoGame;
-    }
+  static async create(gameData) {
+    const novoGame = new Game(gameData);
+    return await novoGame.save();
+  }
 
-    static async update(id, gameData) {
-        const index = db.data.games.findIndex(g => g.id === id);
-        if (index === -1) return null;
+  static async update(id, gameData) {
+    return await Game.findByIdAndUpdate(id, gameData, { new: true });
+  }
 
-        db.data.games[index] = { id, ...gameData };
-        await db.write();
-        return db.data.games[index];
-    }
-
-    static async delete(id) {
-        db.data.games = db.data.games.filter(g => g.id !== id);
-        await db.write();
-    }
+  static async delete(id) {
+    return await Game.findByIdAndDelete(id);
+  }
 }
 
 export default GameRepository;

@@ -6,7 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 class AuthService {
     static async login(email, senha) {
-        const user = UserRepository.findByEmail(email);
+        const user = await UserRepository.findByEmail(email);
         if (!user) {
             const error = new Error('Credenciais inválidas.');
             error.statusCode = 401;

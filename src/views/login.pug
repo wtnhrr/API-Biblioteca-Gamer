@@ -1,0 +1,47 @@
+extends layout
+
+block content
+  div.row.justify-content-center.mt-5
+    div.col-md-4
+      div.card.shadow
+        div.card-body
+          h3.text-center.mb-4 Login
+
+          // Formulário envia POST para /auth/login
+          // Usamos fetch no script abaixo para lidar com a resposta
+          form#loginForm
+            div.mb-3
+              label.form-label Email
+              input.form-control(type="email" name="email" required value="admin@teste.com")
+            div.mb-3
+              label.form-label Senha
+              input.form-control(type="password" name="senha" required value="admin123")
+
+            div.d-grid
+              button.btn.btn-primary(type="submit") Entrar
+
+  script.
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          window.location.href = '/loja';
+        } else {
+          alert('Erro: ' + result.mensagem);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao conectar com o servidor.');
+      }
+    });

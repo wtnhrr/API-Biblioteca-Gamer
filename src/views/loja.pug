@@ -1,0 +1,80 @@
+extends layout
+
+block content
+  div.d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Loja de Jogos
+  
+  // Grid de Jogos
+  div.row.row-cols-1.row-cols-md-3.g-4
+    each game in games
+      div.col
+        div.card.h-100.shadow-sm.border-0.card-game
+          // Imagem Placeholder (Lógica Visual por Gênero)
+          div.card-img-top.bg-dark.text-white.d-flex.justify-content-center.align-items-center(style="height: 180px")
+             if game.genero.toLowerCase().includes('rpg')
+               i.bi.bi-brightness-high(style="font-size: 4rem; opacity: 0.8")
+             else if game.genero.toLowerCase().includes('ação') || game.genero.toLowerCase().includes('action')
+               i.bi.bi-joystick(style="font-size: 4rem; opacity: 0.8")
+             else
+               i.bi.bi-play-circle(style="font-size: 4rem; opacity: 0.8")
+          
+          div.card-body
+            h5.card-title.fw-bold= game.titulo
+            div.mb-2
+              span.badge.bg-info.me-1= game.genero
+              span.badge.bg-light.text-dark.border= game.anoLancamento
+            
+            p.card-text.text-muted.small.mt-2
+              | Jogo disponível para compra imediata. Aproveite a aventura em #{game.plataforma}.
+            
+            div.d-flex.justify-content-between.align-items-center.mt-4
+              h4.text-success.mb-0 R$ #{game.preco.toFixed(2).replace('.', ',')}
+              
+              if game.preco > 200
+                span.badge.bg-warning.text-dark Premium
+          
+          div.card-footer.bg-white.border-top-0.pb-3
+            div.d-grid.gap-2
+              // Botão Ver Detalhes (Público)
+              a.btn.btn-outline-primary(href=`/loja/${game._id}`)
+                i.bi.bi-eye.me-2
+                | Ver Detalhes
+
+              // LÓGICA DE COMPRA
+              if user
+                // Usuário Logado: Botão de Compra Ativo
+                button.btn.btn-success(onclick=`comprarJogo('${game._id}', '${game.titulo}', ${game.preco})`)
+                  i.bi.bi-cart-plus
+                  |  Comprar
+              else
+                // Visitante: Botão leva para Login
+                a.btn.btn-secondary(href="/login")
+                  i.bi.bi-lock-fill
+                  |  Login p/ Comprar
+
+  // --- SCRIPT PARA COMPRAR JOGO (AJAX) ---
+  if user
+    script.
+      async function comprarJogo(gameId, titulo, preco) {
+        if(!confirm(`Deseja comprar "${titulo}" por R$ ${preco}?`)) return;
+
+        try {
+            // Faz o POST para a API usando fetch
+            const res = await fetch('/users/comprar/' + gameId, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            const data = await res.json();
+
+            if(res.ok) {
+                alert('✅ Sucesso: ' + data.mensagem);
+                location.reload(); // Recarrega a página para atualizar o saldo na navbar
+            } else {
+                alert('❌ Erro: ' + (data.mensagem || data.message));
+            }
+        } catch(e) { 
+            console.error(e);
+            alert('Erro de conexão com o servidor.'); 
+        }
+      }

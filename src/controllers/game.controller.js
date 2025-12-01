@@ -1,61 +1,63 @@
 import GameService from '../services/game.service.js';
+import GameDTO from '../dtos/game.dto.js';
 
 class GameController {
 
-    static async getAll(req, res) {
-        try {
-            const allGames = await GameService.getAll();
-            res.status(200).json(allGames);
-        } catch (error) {
-            res.status(500).json({ mensagem: error.message });
-        }
+  static async getAll(req, res, next) {
+    try {
+      const games = await GameService.getAll();
+
+      const gamesDTO = games.map(game => new GameDTO(game));
+
+      res.status(200).json(gamesDTO);
+    } catch (error) {
+      next(error);
     }
+  }
 
-    static async getById(req, res) {
-        try {
-            const id = req.params.id;
-            const game = await GameService.getById(id);
+  static async getById(req, res, next) {
+    try {
+      const id = req.params.id;
+      const game = await GameService.getById(id);
 
-            res.status(200).json(game);
-        } catch (error) {
-            res.status(error.statusCode || 500).json({ mensagem: error.message });
-        }
+      res.status(200).json(new GameDTO(game));
+    } catch (error) {
+      next(error);
     }
+  }
 
-    static async create(req, res) {
-        try {
-            const gameData = req.body;
-            const novoGame = await GameService.create(gameData);
+  static async create(req, res, next) {
+    try {
+      const gameData = req.body;
+      const novoGame = await GameService.create(gameData);
 
-            res.status(201).json(novoGame);
-
-        } catch (error) {
-            res.status(error.statusCode || 500).json({ mensagem: error.message });
-        }
+      res.status(201).json(new GameDTO(novoGame));
+    } catch (error) {
+      next(error);
     }
+  }
 
-    static async update(req, res) {
-        try {
-            const id = req.params.id;
-            const gameData = req.body;
-            const updatedGame = await GameService.update(id, gameData);
+  static async update(req, res, next) {
+    try {
+      const id = req.params.id;
+      const gameData = req.body;
+      const updatedGame = await GameService.update(id, gameData);
 
-            res.status(200).json(updatedGame);
-        } catch (error) {
-            res.status(error.statusCode || 500).json({ mensagem: error.message });
-        }
+      res.status(200).json(new GameDTO(updatedGame));
+    } catch (error) {
+      next(error);
     }
+  }
 
-    static async delete(req, res) {
-        try {
-            const id = req.params.id;
-            await GameService.delete(id);
-            
-            res.status(204).send();
-        } catch (error) {
-            res.status(error.statusCode || 500).json({ mensagem: error.message });
-        }
+  static async delete(req, res, next) {
+    try {
+      const id = req.params.id;
+      await GameService.delete(id);
+      res.status(204).send();
+    } catch (error) {
+      next(error);
     }
+  }
 }
 
 export default GameController;

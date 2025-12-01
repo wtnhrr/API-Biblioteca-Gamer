@@ -1,0 +1,72 @@
+extends layout
+
+block content
+  // Botão Voltar
+  a.btn.btn-outline-secondary.mb-4(href="/loja")
+    i.bi.bi-arrow-left.me-2
+    | Voltar para a Loja
+
+  // --- SEÇÃO DO JOGO ---
+  div.card.shadow-sm.mb-5
+    div.row.g-0
+      div.col-md-4.bg-dark.text-white.d-flex.justify-content-center.align-items-center(style="min-height: 300px")
+        i.bi.bi-controller(style="font-size: 8rem; opacity: 0.8")
+      div.col-md-8
+        div.card-body.p-4
+          div.d-flex.justify-content-between
+            h1.card-title.fw-bold= game.titulo
+            span.badge.bg-info.fs-6= game.genero
+          
+          h4.text-muted.mb-4= game.plataforma + ' | ' + game.anoLancamento
+          
+          p.card-text.fs-5.text-secondary
+            | Este é um jogo incrível disponível na nossa biblioteca. 
+            | Aproveite a jogabilidade imersiva e gráficos de última geração.
+          
+          div.d-flex.align-items-center.mt-4
+            h2.text-success.fw-bold.me-4 R$ #{game.preco.toFixed(2).replace('.', ',')}
+            button.btn.btn-success.btn-lg(onclick="alert('Comprado!')")
+              i.bi.bi-cart-check.me-2
+              | Comprar Agora
+
+  // --- SEÇÃO DE REVIEWS ---
+  h3.mb-3 Avaliações dos Jogadores
+  
+  if reviews.length === 0
+    div.alert.alert-light.text-center.py-4
+      i.bi.bi-chat-square-text.text-muted(style="font-size: 2rem")
+      p.mt-2.text-muted Este jogo ainda não tem avaliações. Seja o primeiro a jogar!
+  else
+    div.row.row-cols-1.g-3
+      each review in reviews
+        div.col
+          div.card.border-0.shadow-sm
+            div.card-body
+              div.d-flex.justify-content-between.align-items-start
+                div
+                  h6.fw-bold.mb-1
+                    i.bi.bi-person-circle.me-2.text-primary
+                    // Verifica se o usuário foi populado (tem nome) ou se é undefined
+                    if review.usuario && review.usuario.nome
+                      = review.usuario.nome
+                    else
+                      | Usuário Anônimo
+                  
+                  // Lógica para desenhar estrelas
+                  div.text-warning
+                    - var n = 0
+                    while n < review.nota
+                      i.bi.bi-star-fill
+                      - n++
+                    // Completa com estrelas vazias até 5
+                    - var empty = 5 - review.nota
+                    - var m = 0
+                    while m < empty
+                      i.bi.bi-star
+                      - m++
+                    
+                    span.text-muted.ms-2.small (#{review.nota}/5)
+
+                small.text-muted= new Date(review.createdAt).toLocaleDateString('pt-BR')
+              
+              p.card-text.mt-3.fst-italic " #{review.comentario} "

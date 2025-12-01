@@ -6,11 +6,11 @@ import { gameRules } from '../validators/game.validator.js';
 import validate from '../middlewares/validation.middleware.js';
 const router = express.Router();
 
-router.use(authMiddleware);
-
 // Publica
 router.get('/', GameController.getAll);
 router.get('/:id', GameController.getById);
+
+router.use(authMiddleware);
 
 // Protegida
 router.post('/', rbacMiddleware(['admin']), gameRules, validate, GameController.create);

@@ -10,7 +10,14 @@ block content
   div.card.shadow-sm.mb-5
     div.row.g-0
       div.col-md-4.bg-dark.text-white.d-flex.justify-content-center.align-items-center(style="min-height: 300px")
-        i.bi.bi-controller(style="font-size: 8rem; opacity: 0.8")
+        // Ícone baseado no gênero (apenas visual)
+        if game.genero.toLowerCase().includes('rpg')
+           i.bi.bi-brightness-high(style="font-size: 8rem; opacity: 0.8")
+        else if game.genero.toLowerCase().includes('ação')
+           i.bi.bi-joystick(style="font-size: 8rem; opacity: 0.8")
+        else
+           i.bi.bi-controller(style="font-size: 8rem; opacity: 0.8")
+      
       div.col-md-8
         div.card-body.p-4
           div.d-flex.justify-content-between
@@ -25,17 +32,27 @@ block content
           
           div.d-flex.align-items-center.mt-4
             h2.text-success.fw-bold.me-4 R$ #{game.preco.toFixed(2).replace('.', ',')}
-            button.btn.btn-success.btn-lg(onclick="alert('Comprado!')")
-              i.bi.bi-cart-check.me-2
-              | Comprar Agora
+            
+            // Lógica do Botão Comprar (apenas visual aqui, funcionalidade na loja)
+            if user
+              button.btn.btn-success.btn-lg(onclick=`alert('Para comprar, use o botão rápido na vitrine da loja!')`)
+                i.bi.bi-cart-check.me-2
+                | Comprar Agora
+            else
+              a.btn.btn-secondary.btn-lg(href="/login")
+                i.bi.bi-lock.me-2
+                | Login para Comprar
 
   // --- SEÇÃO DE REVIEWS ---
-  h3.mb-3 Avaliações dos Jogadores
-  
+  div.d-flex.justify-content-between.align-items-center.mb-3
+    h3 Avaliações dos Jogadores
+    // (Opcional) Botão para criar review poderia ficar aqui
+
   if reviews.length === 0
     div.alert.alert-light.text-center.py-4
       i.bi.bi-chat-square-text.text-muted(style="font-size: 2rem")
-      p.mt-2.text-muted Este jogo ainda não tem avaliações. Seja o primeiro a jogar!
+      p.mt-2.text-muted Este jogo ainda não tem avaliações.
+      small.text-muted Use o Postman/Thunder Client para criar a primeira!
   else
     div.row.row-cols-1.g-3
       each review in reviews
@@ -46,27 +63,55 @@ block content
                 div
                   h6.fw-bold.mb-1
                     i.bi.bi-person-circle.me-2.text-primary
-                    // Verifica se o usuário foi populado (tem nome) ou se é undefined
+                    // Verifica nome do usuário
                     if review.usuario && review.usuario.nome
                       = review.usuario.nome
                     else
                       | Usuário Anônimo
                   
-                  // Lógica para desenhar estrelas
+                  // Lógica das Estrelas
                   div.text-warning
                     - var n = 0
                     while n < review.nota
                       i.bi.bi-star-fill
                       - n++
-                    // Completa com estrelas vazias até 5
                     - var empty = 5 - review.nota
                     - var m = 0
                     while m < empty
                       i.bi.bi-star
                       - m++
-                    
                     span.text-muted.ms-2.small (#{review.nota}/5)
 
-                small.text-muted= new Date(review.createdAt).toLocaleDateString('pt-BR')
-              
+                div.text-end
+                  small.text-muted.d-block= new Date(review.createdAt).toLocaleDateString('pt-BR')
+                  
+                  // --- BOTÃO DE DELETAR (LÓGICA DE PERMISSÃO) ---
+                  // Mostra se: (Tem usuário logado) E (User é Admin OU User é dono da review)
+                  if user && (user.role === 'admin' || (review.usuario && user.id === review.usuario._id.toString()))
+                    button.btn.btn-outline-danger.btn-sm.mt-2(onclick=`deletarReview('${review._id}')` title="Excluir Review")
+                      i.bi.bi-trash
+
               p.card-text.mt-3.fst-italic " #{review.comentario} "
+
+ 
+  script.
+    async function deletarReview(reviewId) {
+      if(!confirm("Tem certeza que deseja apagar esta avaliação?")) return;
+
+      try {
+        const res = await fetch('/reviews/' + reviewId, { method: 'DELETE' });
+        
+        // Se a resposta for OK (200), recarrega
+        if (res.ok) {
+          alert('Review apagada com sucesso!');
+          location.reload(); 
+        } else {
+          // Se der erro (403/404), tenta ler a mensagem JSON
+          const data = await res.json();
+          alert('Erro: ' + (data.message || data.mensagem || 'Erro desconhecido'));
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Erro de conexão ao tentar deletar.');
+      }
+    }

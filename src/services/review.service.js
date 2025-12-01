@@ -40,8 +40,21 @@ class ReviewService {
     return await ReviewRepository.findByGameId(gameId);
   }
 
-  static async delete(id) {
-     return await ReviewRepository.delete(id);
+  static async delete(reviewId, userId, userRole) {
+    const review = await ReviewRepository.findById(reviewId);
+    
+    if (!review) {
+      throw { statusCode: 404, message: 'Review não encontrada.' };
+    }
+
+    const isOwner = review.usuario.toString() === userId;
+    const isAdmin = userRole === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      throw { statusCode: 403, message: 'Você não tem permissão para deletar esta review.' };
+    }
+
+    return await ReviewRepository.delete(reviewId);
   }
 }
 

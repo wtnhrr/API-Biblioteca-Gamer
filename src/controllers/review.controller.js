@@ -37,8 +37,13 @@ class ReviewController {
 
   static async delete(req, res, next) {
     try {
-      await ReviewService.delete(req.params.id);
-      res.status(204).send();
+      const reviewId = req.params.id;
+      const userId = req.user.id;
+      const userRole = req.user.role;
+
+      await ReviewService.delete(reviewId, userId, userRole);
+
+      res.status(200).json({ message: 'Review deletada com sucesso.' });
     } catch (error) {
       next(error);
     }

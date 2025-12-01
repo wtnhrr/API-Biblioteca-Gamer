@@ -11,6 +11,7 @@ router.get('/game/:gameId', ReviewController.getByGame);
 
 // Autenticado
 router.post('/', authMiddleware, ReviewController.create);
+router.delete('/:id', authMiddleware, ReviewController.delete);
 
 // Role Admin
 router.delete('/:id', authMiddleware, rbacMiddleware(['admin']), ReviewController.delete);

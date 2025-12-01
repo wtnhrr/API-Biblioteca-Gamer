@@ -113,7 +113,7 @@
 # 4.1 Criar Avaliação
 - Usar Token de User Comum
 - Pegar um ID de Jogo existente
-  ROTA: POST http://localhost:3000/reviews
+  ROTA: POST http://localhost:3000/reviews   69251930c5c6c5553430f621
   JSON: {
     "gameId": "<ID>",
     "nota": 5,

@@ -13,6 +13,10 @@ class ReviewRepository {
       .populate('game', 'titulo');
   }
 
+  static async findById(id) {
+    return await Review.findById(id);
+  }
+
   static async findByGameId(gameId) {
     return await Review.find({ game: gameId })
       .populate('usuario', 'nome')
